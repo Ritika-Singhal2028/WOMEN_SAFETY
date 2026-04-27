@@ -1,0 +1,229 @@
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, #487399 0%, #204169 50%, #0d1e34 100%);
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Overlay for autoplay bypass */
+.start-overlay {
+    position: fixed; 
+    top: 0; left: 0; width: 100%; height: 100%; 
+    background: #0d1e34; 
+    z-index: 9999; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    color: white; 
+    flex-direction: column; 
+    cursor: pointer;
+}
+.start-overlay h2 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-weight: 400;
+}
+.start-overlay p {
+    color: #aaa;
+    font-size: 14px;
+}
+
+.call-screen {
+    text-align: center;
+    width: 100%;
+    margin-top: 15vh;
+    transition: all 0.5s ease-in-out;
+}
+
+body.connected .call-screen {
+    margin-top: 10vh; /* Slide up slightly when connected */
+}
+
+.caller-name {
+    font-size: 42px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.incoming {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 300;
+    animation: blink 1.5s infinite;
+}
+
+.timer {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+}
+
+.call-bottom {
+    margin-bottom: 8vh;
+    width: 100%;
+}
+
+.extra-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 60px;
+    margin-bottom: 50px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.extra-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    cursor: pointer;
+}
+
+.extra-btn i {
+    margin-bottom: 10px;
+}
+
+.extra-btn span {
+    font-size: 15px;
+    font-weight: 300;
+}
+
+/* In-call options grid */
+.in-call-options {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
+    transition: opacity 0.5s ease;
+}
+
+.grid-row {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+}
+
+.option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    color: white;
+    width: 80px;
+}
+
+.option-btn.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.icon-circle {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.option-btn span {
+    font-size: 13px;
+    font-weight: 300;
+}
+
+.call-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 45px;
+    transition: all 0.5s ease-in-out;
+}
+
+.action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.5s ease-in-out;
+}
+
+.action-item span {
+    font-size: 15px;
+    margin-top: 12px;
+    font-weight: 300;
+}
+
+.accept, .decline {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.accept:active, .decline:active {
+    transform: scale(0.9);
+}
+
+.decline {
+    background: #ff3b30; 
+}
+
+.accept {
+    background: #34c759; 
+    animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+    0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4); }
+    70% { box-shadow: 0 0 0 20px rgba(52, 199, 89, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* When connected layout adjustments */
+body.connected .incoming {
+    animation: none;
+}
+
+body.connected .accept-container {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    display: none;
+}
+
+body.connected .extra-actions {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-20px);
+}
+
+body.connected .call-actions {
+    justify-content: center;
+}
+
+body.connected .decline-container {
+    transform: scale(1.1);
+}
+
+body.connected #declineText {
+    display: none;
+}

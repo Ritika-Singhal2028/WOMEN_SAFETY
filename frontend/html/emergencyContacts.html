@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Contacts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/frontend/css/style.css">
+    <style>
+        /* Import Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #ff3b6b;
+            --primary-light: #ff6a88;
+            --secondary: #3b82f6;
+            --success: #10b981;
+            --surface-light: rgba(255, 255, 255, 0.85);
+            --surface-dark: rgba(30, 41, 59, 0.75);
+            --bg-light: #f8fafc;
+            --bg-dark: #0f172a;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --text-dark-main: #f1f5f9;
+            --text-dark-muted: #94a3b8;
+            --border-light: rgba(255, 255, 255, 0.5);
+            --border-dark: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            font-family: 'Outfit', 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e8ff 100%);
+            margin: 0;
+            color: var(--text-main);
+            min-height: 100vh;
+            background-attachment: fixed;
+            transition: all 0.4s ease;
+        }
+
+        /* 🌙 DARK MODE BASE */
+        body.dark {
+            background: radial-gradient(circle at top left, #1e1b4b, #0f172a 70%);
+            color: var(--text-dark-main);
+        }
+
+        /* Ambient glowing circles for background */
+        .ambient-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.6;
+            animation: float 10s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+        .blob-1 {
+            top: -10%; left: -10%;
+            width: 300px; height: 300px;
+            background: rgba(255, 106, 136, 0.4);
+        }
+        .blob-2 {
+            bottom: -10%; right: -10%;
+            width: 400px; height: 400px;
+            background: rgba(168, 85, 247, 0.3);
+        }
+        body.dark .blob-1 { background: rgba(255, 106, 136, 0.15); }
+        body.dark .blob-2 { background: rgba(168, 85, 247, 0.15); }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(30px) scale(1.05); }
+        }
+
+        /* CONTAINER */
+        .container {
+            padding: 20px 24px 100px;
+            max-width: 600px;
+            margin: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-radius: 20px;
+            background: var(--surface-light);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-light);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,0.6);
+            margin: 20px auto 30px auto;
+            max-width: 600px;
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        body.dark .header {
+            background: var(--surface-dark);
+            border-color: var(--border-dark);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .header h2 {
+            flex: 1;
+            text-align: center;
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-main), #475569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        body.dark .header h2 {
+            background: linear-gradient(135deg, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-btn {
+            font-size: 20px;
+            text-decoration: none;
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.04);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1) translateX(-3px);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 59, 107, 0.3);
+        }
+
+        body.dark .back-btn {
+            color: var(--text-dark-main);
+            background: rgba(255,255,255,0.08);
+        }
+        body.dark .back-btn:hover { color: white; background: var(--primary); }
+
+        /* CONTACT CARD */
+        .contact-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            perspective: 1000px;
+        }
+
+        .contact-card {
+            background: var(--surface-light);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.5);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            animation: slideUp 0.5s ease backwards;
+        }
+        
+        .contact-card:nth-child(1) { animation-delay: 0.1s; }
+        .contact-card:nth-child(2) { animation-delay: 0.2s; }
+        .contact-card:nth-child(3) { animation-delay: 0.3s; }
+        .contact-card:nth-child(4) { animation-delay: 0.4s; }
+        .contact-card:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+            border-color: rgba(255, 59, 107, 0.2);
+            background: white;
+        }
+
+        body.dark .contact-card {
+            background: var(--surface-dark);
+            border-color: var(--border-dark);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.02);
+        }
+        body.dark .contact-card:hover {
+            background: rgba(30, 41, 59, 1);
+            border-color: rgba(255, 59, 107, 0.4);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+        }
+
+        /* CONTACT INFO */
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .contact-info h3 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contact-info h3 i {
+            color: var(--primary);
+            background: rgba(255, 59, 107, 0.1);
+            padding: 8px;
+            border-radius: 50%;
+            font-size: 14px;
+        }
+
+        .contact-info p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        body.dark .contact-info p {
+            color: var(--text-dark-muted);
+        }
+
+        /* CALL BUTTON */
+        .call-btn {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            padding: 12px 22px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .call-btn:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .call-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* FORM */
+        .add-form {
+            margin-top: 35px;
+            padding: 28px;
+            border-radius: 20px;
+            background: var(--surface-light);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.8);
+            border: 1px solid var(--border-light);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .add-form::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        }
+
+        body.dark .add-form {
+            background: var(--surface-dark);
+            border-color: var(--border-dark);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .add-form h2 {
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        /* INPUT */
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        body.dark .form-group label {
+            color: var(--text-dark-muted);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.6);
+            outline: none;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-light);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(255, 106, 136, 0.15);
+        }
+
+        body.dark .form-group input {
+            background: rgba(15, 23, 42, 0.6);
+            color: white;
+            border-color: rgba(255,255,255,0.05);
+        }
+        
+        body.dark .form-group input:focus {
+            border-color: var(--primary);
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 0 0 4px rgba(255, 59, 107, 0.2);
+        }
+
+        /* BUTTON */
+        .add-btn {
+            margin-top: 5px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none;
+            padding: 16px;
+            width: 100%;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(255, 59, 107, 0.3);
+            font-family: inherit;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 12px 25px rgba(255, 59, 107, 0.4);
+        }
+        
+        .add-btn:active {
+            transform: translateY(1px);
+        }
+
+        .loading-text {
+            text-align: center;
+            font-size: 1rem;
+            color: var(--text-muted);
+            padding: 30px 0;
+            font-weight: 500;
+            animation: pulse-op 1.5s infinite alternate;
+        }
+        
+        @keyframes pulse-op {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="dark">
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+    <div class="header">
+        <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        <h2>Emergency Contacts</h2>
+        <div style="width: 24px;"></div> <!-- Spacer to center title -->
+    </div>
+
+    <div class="container">
+        <ul class="contact-list" id="contactList">
+            <!-- Contacts will be injected here -->
+            <div class="loading-text">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
+                <span>Loading contacts...</span>
+            </div>
+        </ul>
+
+        <div class="add-form">
+            <h2>Add New Contact</h2>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="newName" placeholder="Enter name">
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="newPhone" placeholder="Enter 10-digit number">
+            </div>
+            <button class="add-btn" onclick="addNewContact()"><i class="fa-solid fa-plus"></i> Add Contact</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <script src="../../backend/firebase.js"></script>
+    <script>
+        let currentUser = null;
+        let contactsArray = [];
+
+        // Check auth status
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                fetchContacts();
+            } else {
+                const uid = localStorage.getItem("uid");
+                if(uid) {
+                    currentUser = { uid: uid };
+                    fetchContacts();
+                } else {
+                    alert("Please login first to view your contacts.");
+                    window.location.href = "login.html";
+                }
+            }
+        });
+
+        function fetchContacts() {
+            if(!currentUser) return;
+            const uid = currentUser.uid;
+            database.ref('users/' + uid + '/emergencyContacts').on('value', snapshot => {
+                const data = snapshot.val();
+                if(data) {
+                    contactsArray = Array.isArray(data) ? data : Object.values(data);
+                } else {
+                    contactsArray = [];
+                }
+                renderContacts();
+            }, error => {
+                console.error("Error fetching contacts:", error);
+            });
+        }
+
+        function renderContacts() {
+            const listObj = document.getElementById('contactList');
+            listObj.innerHTML = '';
+            
+            if(contactsArray.length === 0) {
+                listObj.innerHTML = '<div class="loading-text"><i class="fa-solid fa-address-book" style="font-size: 30px; opacity: 0.5;"></i><span>No emergency contacts found.</span></div>';
+                return;
+            }
+
+            contactsArray.forEach((contact, idx) => {
+                const li = document.createElement('li');
+                li.className = 'contact-card';
+                li.innerHTML = `
+                    <div class="contact-info">
+                        <h3><i class="fa-solid fa-user-shield"></i> ${contact.name || 'Unknown'}</h3>
+                        <p>${contact.phone}</p>
+                    </div>
+                    <a href="tel:${contact.phone}" class="call-btn">
+                        <i class="fa-solid fa-phone"></i> Call
+                    </a>
+                `;
+                listObj.appendChild(li);
+            });
+        }
+
+        function addNewContact() {
+            const name = document.getElementById('newName').value.trim();
+            const phone = document.getElementById('newPhone').value.trim();
+
+            if(!name || !phone) {
+                alert("Please enter both name and phone number.");
+                return;
+            }
+            if(!currentUser) return;
+
+            const newContact = { name, phone };
+            const updatedContacts = [...contactsArray, newContact];
+
+            database.ref('users/' + currentUser.uid + '/emergencyContacts')
+                .set(updatedContacts)
+                .then(() => {
+                    alert("Contact added successfully!");
+                    document.getElementById('newName').value = '';
+                    document.getElementById('newPhone').value = '';
+                })
+                .catch(error => {
+                    alert("Error adding contact: " + error.message);
+                });
+        }
+    </script>
+</body>
+</html>

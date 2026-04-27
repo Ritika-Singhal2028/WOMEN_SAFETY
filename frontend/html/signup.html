@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQHer - Sign Up</title>
+    <link rel="stylesheet" href="/frontend/css/signup.css">
+    <!-- Google Fonts for typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="no-dark">
+    <div class="signup-container">
+        <div class="header">
+            <h1>Create Account</h1>
+            <p>Join ResQHer and stay safe, always.</p>      
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="progress-container">
+            <div class="step-indicator active" id="indicator-1">
+                <div class="circle">1</div>
+                <span>Personal</span>
+            </div>
+            <div class="line"></div>
+            <div class="step-indicator" id="indicator-2">
+                <div class="circle">2</div>
+                <span>Contacts</span>
+            </div>
+        </div>
+
+        <form id="signupForm" action="#" method="POST">
+            
+            <!-- STEP 1: Personal Details -->
+            <div class="step active" id="step-1">
+                <div class="form-section">
+                    <h2>Personal Details</h2>
+                    <p class="section-desc">Fields marked with <span class="required">*</span> are mandatory.</p>
+                    
+                    <div class="input-group">
+                        <label for="username"><i class="fa-solid fa-user"></i> Username <span class="required">*</span></label>
+                        <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="phone"><i class="fa-solid fa-phone"></i> Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" placeholder="+91 9876543210" pattern="[0-9]{10}" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="dob"><i class="fa-solid fa-calendar"></i> Date of Birth <span class="required">*</span></label>
+                        <input type="date" id="dob" name="dob" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="address"><i class="fa-solid fa-location-dot"></i> Address <span class="required">*</span></label>
+                        <textarea id="address" name="address" rows="3" placeholder="Enter your full address" required></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-envelope"></i> Email *</label>
+                        <input type="email" id="email" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fa-solid fa-lock"></i> Password *</label>
+                        <input type="password" id="password" required>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn-primary" onclick="nextStep()">Next <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+
+            <!-- STEP 2: Safety Contacts & Logs (Initially Hidden) -->
+            <div class="step" id="step-2">
+                
+                <div class="form-section">
+                    <h2>Emergency Contacts</h2>
+                    <p class="section-desc">Add trusted people who will receive your live location during an emergency.</p>
+                    
+                    <div class="contact-input-box">
+                        <div class="input-row">
+                            <input type="text" id="em-contact-name" placeholder="Contact Name">
+                            <input type="tel" id="em-contact-phone" placeholder="Phone No. (10 digits)">
+                        </div>
+                        <button type="button" class="btn-secondary" id="btnAddEmContact" onclick="addEmergencyContact()">
+                            <i class="fa-solid fa-plus"></i> Add Contact
+                        </button>
+                        <input type="hidden" id="em-edit-index" value="-1">
+                    </div>
+                    
+                    <ul id="emergencyList" class="dynamic-list"></ul>
+                    <input type="hidden" name="emergency_contacts_data" id="emergencyContactsData">
+                </div>
+
+                <div class="form-section mt-4">
+                    <h2>Add trusted numbers for sharing location</h2>
+                    <p class="section-desc">Add specific numbers to appear in fake call logs for safety reasons.</p>
+                    
+                    <div class="contact-input-box">
+                        <div class="input-row one-col">
+                            <input type="tel" id="fake-call-phone" placeholder="Phone No. (10 digits)">
+                        </div>
+                        <button type="button" class="btn-secondary" onclick="addFakeCallNumber()">
+                            <i class="fa-solid fa-plus"></i> Add Number
+                        </button>
+                        <input type="hidden" id="fake-edit-index" value="-1">
+                    </div>
+
+                    <ul id="fakeCallList" class="dynamic-list"></ul>
+                    <input type="hidden" name="fake_call_data" id="fakeCallData">
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn-back" onclick="prevStep()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                    <button type="submit" class="btn-primary" id="finalSubmitBtn">Complete Sign Up <i class="fa-solid fa-check"></i></button>
+                </div>
+            </div>
+
+            <div class="login-link">
+                <p>Already have an account? <a href="login.html">Log in</a></p>
+            </div>
+        </form>
+    </div>
+    <!-- <script src="auth-navigation.js"></script> -->
+     <script src="/frontend/js/app.js"></script>
+    <script>
+        // --- MULTI-STEP WIZARD LOGIC ---
+        const step1 = document.getElementById('step-1');
+        const step2 = document.getElementById('step-2');
+        const ind1 = document.getElementById('indicator-1');
+        const ind2 = document.getElementById('indicator-2');
+        
+        function validateStep1() {
+            const username = document.getElementById('username').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const dob = document.getElementById('dob').value.trim();
+            const address = document.getElementById('address').value.trim();
+
+            if (!username || !phone || !dob || !address) {
+                alert('Please fill out all mandatory fields (marked with *) before proceeding.');
+                return false;
+            }
+            // Basic phone validation (10 digits)
+            if (!/^\d{10}$/.test(phone)) {
+                alert('Please enter a valid 10-digit phone number.');
+                return false;
+            }
+            return true;
+        }
+
+        function nextStep() {
+            if (validateStep1()) {
+                step1.classList.remove('active');
+                ind1.classList.remove('active');
+                ind1.classList.add('completed');
+                
+                step2.classList.add('active');
+                ind2.classList.add('active');
+            }
+        }
+
+        function prevStep() {
+            step2.classList.remove('active');
+            ind2.classList.remove('active');
+            
+            step1.classList.add('active');
+            ind1.classList.add('active');
+            ind1.classList.remove('completed');
+        }
+
+
+        // --- DYNAMIC CONTACTS LOGIC ---
+        let emergencyContacts = [];
+        let fakeCallNumbers = [];
+
+        const elEmergencyList = document.getElementById('emergencyList');
+        const elFakeCallList = document.getElementById('fakeCallList');
+        
+        function updateEmergencyListUI() {
+            elEmergencyList.innerHTML = '';
+            emergencyContacts.forEach((contact, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="contact-info">
+                        <span class="c-name"><i class="fa-solid fa-user-shield"></i> ${contact.name}</span>
+                        <span class="c-phone">${contact.phone}</span>
+                    </div>
+                    <div class="contact-actions">
+                        <button type="button" class="action-btn edit" onclick="editEmergencyContact(${index})" title="Update">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button type="button" class="action-btn remove" onclick="removeEmergencyContact(${index})" title="Remove">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                elEmergencyList.appendChild(li);
+            });
+            document.getElementById('emergencyContactsData').value = JSON.stringify(emergencyContacts);
+        }
+
+        function addEmergencyContact() {
+            const nameInput = document.getElementById('em-contact-name');
+            const phoneInput = document.getElementById('em-contact-phone');
+            const editIndexInput = document.getElementById('em-edit-index');
+            const addBtn = document.getElementById('btnAddEmContact');
+
+            const name = nameInput.value.trim();
+            const phone = phoneInput.value.trim();
+            const editIndex = parseInt(editIndexInput.value);
+
+            if (name === '' || phone === '') {
+                alert('Please enter both name and phone number for the contact.');
+                return;
+            }
+
+            if (editIndex > -1) {
+                // Update
+                emergencyContacts[editIndex] = { name, phone };
+                editIndexInput.value = "-1";
+                addBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Contact';
+            } else {
+                // Add
+                emergencyContacts.push({ name, phone });
+            }
+
+            // Reset
+            nameInput.value = '';
+            phoneInput.value = '';
+            updateEmergencyListUI();
+        }
+
+        function editEmergencyContact(index) {
+            const contact = emergencyContacts[index];
+            document.getElementById('em-contact-name').value = contact.name;
+            document.getElementById('em-contact-phone').value = contact.phone;
+            document.getElementById('em-edit-index').value = index;
+            
+            const addBtn = document.getElementById('btnAddEmContact');
+            addBtn.innerHTML = '<i class="fa-solid fa-check"></i> Update Contact';
+            document.getElementById('em-contact-name').focus();
+        }
+
+        function removeEmergencyContact(index) {
+            if (confirm('Are you sure you want to remove this emergency contact?')) {
+                emergencyContacts.splice(index, 1);
+                
+                if (parseInt(document.getElementById('em-edit-index').value) === index) {
+                    document.getElementById('em-contact-name').value = '';
+                    document.getElementById('em-contact-phone').value = '';
+                    document.getElementById('em-edit-index').value = "-1";
+                    document.getElementById('btnAddEmContact').innerHTML = '<i class="fa-solid fa-plus"></i> Add Contact';
+                }
+                
+                updateEmergencyListUI();
+            }
+        }
+
+        function updateFakeCallListUI() {
+            elFakeCallList.innerHTML = '';
+            fakeCallNumbers.forEach((phone, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="contact-info">
+                        <span class="c-phone"><i class="fa-solid fa-phone-volume"></i> ${phone}</span>
+                    </div>
+                    <div class="contact-actions">
+                        <button type="button" class="action-btn remove" onclick="removeFakeCallNumber(${index})" title="Remove">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                elFakeCallList.appendChild(li);
+            });
+            document.getElementById('fakeCallData').value = JSON.stringify(fakeCallNumbers);
+        }
+
+        function addFakeCallNumber() {
+            const phoneInput = document.getElementById('fake-call-phone');
+            const phone = phoneInput.value.trim();
+
+            if (phone === '') {
+                alert('Please enter a phone number to add to the fake call log.');
+                return;
+            }
+
+            if(fakeCallNumbers.includes(phone)) {
+                alert('This number is already in your fake call log list.');
+                return;
+            }
+
+            fakeCallNumbers.push(phone);
+            phoneInput.value = '';
+            updateFakeCallListUI();
+        }
+
+        function removeFakeCallNumber(index) {
+            fakeCallNumbers.splice(index, 1);
+            updateFakeCallListUI();
+        }
+
+        // Form Submission
+document.getElementById("signupForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const userData = {
+        username: document.getElementById("username").value,
+        phone: document.getElementById("phone").value,
+        dob: document.getElementById("dob").value,
+        address: document.getElementById("address").value,
+        emergencyContacts: emergencyContacts,
+        fakeCalls: fakeCallNumbers
+    };
+
+    auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+        const userId = userCredential.user.uid;
+
+        return database.ref("users/" + userId).set({
+            email,
+            ...userData
+        });
+    })
+    .then(() => {
+        alert("Signup Successful! ✅");
+        window.location.href = "login.html";
+    })
+    .catch((error) => {
+        console.error(error);
+
+        if (error.code === "auth/email-already-in-use") {
+            alert("This user is already registered ❌");
+        } else if (error.code === "auth/weak-password") {
+            alert("Password should be at least 6 characters ❌");
+        } else {
+            alert("Signup failed: " + error.message);
+        }
+    });
+});
+    
+
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<script src="../../backend/firebase.js"></script>
+</body>
+</html>

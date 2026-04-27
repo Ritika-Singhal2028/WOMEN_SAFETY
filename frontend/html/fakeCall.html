@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Incoming Call</title>
+
+<link rel="stylesheet" href="/frontend/css/fakeCall.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+
+<!-- ✅ IMPORTANT: class added -->
+<body class="fake-call-page">
+
+    <!-- Overlay for browser autoplay bypass -->
+    <div id="startSimulationOverlay" class="start-overlay">
+        <i class="fa-solid fa-phone-volume" style="font-size: 50px; margin-bottom: 20px;"></i>
+        <h2>Tap to Receive Call</h2>
+        <p>Browsers require a tap to play ringtones!</p>
+    </div>
+
+    <div class="call-screen">
+        <div class="caller-name">Mom</div>
+        
+        <div class="call-status" id="callStatus">
+            <div class="incoming" id="incomingText">Calling...</div>
+            <div class="timer" id="timer" style="display: none;">00:00</div>
+        </div>
+    </div>
+    
+    <div class="call-bottom">
+
+        <div class="extra-actions" id="extraActions">
+            <div class="extra-btn">
+                <i class="fa-regular fa-clock" style="font-size: 26px;"></i>
+                <span>Remind Me</span>
+            </div>
+            <div class="extra-btn">
+                <i class="fa-solid fa-comment" style="font-size: 26px;"></i>
+                <span>Message</span>
+            </div>
+        </div>
+
+        <div class="in-call-options" id="inCallOptions" style="display: none; opacity: 0;">
+            <div class="grid-row">
+                <div class="option-btn">
+                    <div class="icon-circle"><i class="fa-solid fa-microphone-slash"></i></div>
+                    <span>mute</span>
+                </div>
+                <div class="option-btn">
+                    <div class="icon-circle"><i class="fa-solid fa-th"></i></div>
+                    <span>keypad</span>
+                </div>
+                <div class="option-btn">
+                    <div class="icon-circle"><i class="fa-solid fa-volume-high"></i></div>
+                    <span>audio</span>
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="option-btn disabled">
+                    <div class="icon-circle"><i class="fa-solid fa-plus"></i></div>
+                    <span>add call</span>
+                </div>
+                <div class="option-btn disabled">
+                    <div class="icon-circle"><i class="fa-solid fa-video"></i></div>
+                    <span>FaceTime</span>
+                </div>
+                <div class="option-btn">
+                    <div class="icon-circle"><i class="fa-regular fa-user"></i></div>
+                    <span>contacts</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="call-actions">
+
+            <div class="action-item decline-container">
+                <div class="decline" onclick="endCall()">
+                    <i class="fa-solid fa-phone" style="transform: rotate(135deg);"></i>
+                </div>
+                <span id="declineText">Decline</span>
+            </div>
+    
+            <div class="action-item accept-container" id="acceptContainer">
+                <div class="accept" onclick="acceptCall()">
+                    <i class="fa-solid fa-phone"></i>
+                </div>
+                <span>Accept</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 🎵 Ringtone -->
+    <audio id="ringtone" loop>
+        <source src="/frontend/audio/redmi_note_6_ring.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Scripts -->
+    <script src="/frontend/js/fakeCall.js"></script>
+    <script src="/frontend/js/app.js"></script>
+
+</body>
+</html>
