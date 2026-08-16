@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Location - ResQHer</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/frontend/css/style.css">
+    <link rel="stylesheet" href="/frontend/css/shareLocation.css">
+</head>
+<body>
+
+    <!-- Header / Nav -->
+    <div class="container">
+        <div class="page-header">
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h1 class="page-title">Share Live Location</h1>
+        </div>
+
+        <div id="loading" class="loading-text">
+            <i class="fa-solid fa-spinner fa-spin"></i> Loading contacts...
+        </div>
+
+        <ul id="contactsList" class="contact-list" style="display: none;">
+            <!-- Contacts will be dynamically inserted here -->
+        </ul>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="fa-solid fa-address-book" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+            <h3>No Emergency Contacts</h3>
+            <p>You haven't added any emergency contacts yet. Go to Emergency Contacts to add them.</p>
+        </div>
+
+        <button id="sendAllBtn" class="send-all-btn" style="display: none;">
+            <i class="fa-solid fa-paper-plane"></i> Send to All via SMS
+        </button>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <i class="fa fa-home home-icon" style="font-size:25px;" onclick="window.location.href='index.html'"></i>
+        <i class="fa-solid fa-user profile" style="font-size:25px;" onclick="window.location.href='profile.html'"></i>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <script src="../../backend/firebase.js"></script>
+    
+    <!-- Core App JS (for theme etc) -->
+    <script src="/frontend/js/app.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const uid = localStorage.getItem("uid");
+            const loading = document.getElementById("loading");
+            const contactsList = document.getElementById("contactsList");
+            const emptyState = document.getElementById("emptyState");
+            const sendAllBtn = document.getElementById("sendAllBtn");
+
+            let userContacts = [];
+            let currentLocation = null;
+
+            if (!uid) {
+                alert("Please login first.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            // Fetch Location immediately so it's ready
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        currentLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                    },
+                    (error) => {
+                        console.error("Error getting location:", error);
+                    }
+                );
+            }
+
+            // Fetch contacts from Firebase
+            database.ref("users/" + uid + "/emergencyContacts").once("value")
+                .then((snapshot) => {
+                    loading.style.display = "none";
+                    if (snapshot.exists()) {
+                        userContacts = snapshot.val();
+                        if (userContacts && userContacts.length > 0) {
+                            renderContacts();
+                            contactsList.style.display = "flex";
+                            sendAllBtn.style.display = "flex";
+                        } else {
+                            emptyState.style.display = "block";
+                        }
+                    } else {
+                        emptyState.style.display = "block";
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching contacts:", error);
+                    loading.innerHTML = "Error loading contacts.";
+                });
+
+            function createLocationMessage() {
+                if (currentLocation) {
+                    return `EMERGENCY: I need help! Here is my live location: https://maps.google.com/?q=${currentLocation.lat},${currentLocation.lng}`;
+                } else {
+                    return `EMERGENCY: I need help! (Location unavailable, please call me immediately)`;
+                }
+            }
+
+            function renderContacts() {
+                contactsList.innerHTML = "";
+                userContacts.forEach((contact, index) => {
+                    const li = document.createElement("li");
+                    li.className = "contact-card";
+                    
+                    // Format phone to remove spaces and ensure country code if possible
+                    // But we'll just use what's saved
+                    let phone = contact.phone.replace(/\\s+/g, '');
+
+                    li.innerHTML = `
+                        <div class="contact-info">
+                            <span class="contact-name">${contact.name}</span>
+                            <span class="contact-phone">${contact.phone}</span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-whatsapp" title="Send via WhatsApp" onclick="sendWhatsApp('${phone}')">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </button>
+                            <button class="btn-sms" title="Send via SMS" onclick="sendSMS('${phone}')">
+                                <i class="fa-solid fa-comment-sms"></i>
+                            </button>
+                        </div>
+                    `;
+                    contactsList.appendChild(li);
+                });
+            }
+
+            // Global functions for inline onclick handlers
+            window.sendWhatsApp = function(phone) {
+                const message = encodeURIComponent(createLocationMessage());
+                // Remove non-numeric chars except + for WhatsApp link
+                let cleanPhone = phone.replace(/[^0-9+]/g, '');
+                // If no country code, default to India +91 as per app pattern
+                if(!cleanPhone.startsWith('+')) {
+                    cleanPhone = '+91' + cleanPhone;
+                }
+                const url = `https://wa.me/${cleanPhone}?text=${message}`;
+                window.open(url, '_blank');
+            };
+
+            window.sendSMS = function(phone) {
+                const message = encodeURIComponent(createLocationMessage());
+                const url = `sms:${phone}?body=${message}`;
+                window.location.href = url;
+            };
+
+            sendAllBtn.addEventListener("click", function() {
+                if (userContacts.length === 0) return;
+                
+                const message = encodeURIComponent(createLocationMessage());
+                // Combine all numbers separated by comma
+                const allPhones = userContacts.map(c => c.phone.replace(/[^0-9+]/g, '')).join(',');
+                
+                const url = `sms:${allPhones}?body=${message}`;
+                window.location.href = url;
+            });
+        });
+    </script>
+</body>
+</html>

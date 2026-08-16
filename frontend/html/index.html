@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>Safety App UI</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="/frontend/css/style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
+</head>
+
+<body>
+
+<!-- Header -->
+
+<div class="header">
+<h1>Hello, User !</h1>
+</div>
+
+<!--Toggle bar(dark & light theme)-->
+<div class="theme-toggle">
+    <span style="font-size:40px">🌞</span>
+    <label class="switch">
+        <input type="checkbox" id="toggleTheme">
+        <span  class="slider"></span>
+    </label>
+    <span style="font-size:40px">🌙</span>
+</div>
+
+<!-- Banner -->
+
+<div class="banner" id="map"></div>
+<button id="closeMapBtn" class="close-map-btn" style="display:none;"><i class="fa-solid fa-xmark"></i></button>
+
+<!-- Features -->
+
+<div class="features">
+
+<div class="feature-card" id="fakeCallBtn">
+<div class="icon-box">
+<i class="fa-solid fa-phone" style="font-size:40px;"></i>
+</div>
+<p>Fake Call</p>
+</div>
+
+<div class="feature-card" id="emergencyContactsBtn">
+<div class="icon-box">
+<i class="fa-solid fa-address-book" style="font-size:40px;"></i>
+</div>
+<p>Emergency Contacts</p>
+</div>
+
+<div class="feature-card">
+<div class="icon-box">
+<i class="fa-solid fa-lightbulb" style="font-size:40px;"></i>
+</div>
+<p>Safety Tips</p>
+</div>
+
+<div class="feature-card" id="shareLocationBtn">
+<div class="icon-box">
+<i class="fa-solid fa-location-dot" style="font-size:40px;"></i>
+</div>
+<p>Share Location</p>
+</div>
+
+<div class="feature-card" id="nearbyPoliceBtn">
+<div class="icon-box">
+<i class="fa-solid fa-building-shield" style="font-size:40px;"></i>
+</div>
+<p>Nearby Police</p>
+</div>
+
+<div class="feature-card" onclick="window.location.href='tel:6376176292'">
+<div class="icon-box">
+<i class="fa-solid fa-phone-volume" style="font-size:40px;"></i>
+</div>
+<p>Call Police</p>
+</div>
+
+</div>
+
+
+
+<!-- Bottom Navigation and button -->
+
+<div class="bottom-nav">
+    <i class="fa fa-home home-icon" style="font-size:50px;"></i>
+
+    <!-- <div class="profile"> -->
+    <i class="fa-solid fa-user profile" style="font-size:50px;"></i>
+    <!-- </div> -->
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+<script src="/frontend/js/app.js"></script>
+<script src="/frontend/js/auth-navigation.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<script src="../../backend/firebase.js"></script>
+</body>
+</html>
